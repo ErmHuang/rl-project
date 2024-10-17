@@ -14,7 +14,7 @@
 
 5. put the robotic_arm.xml  into your gym(mujoco) assets folder so that it can be found by
 
-   MujocoEnv.__init__(self, "robotic_arm-v1.xml", 2, **kwargs) 
+         MujocoEnv.__init__(self, "robotic_arm-v1.xml", 2, **kwargs) 
 
    for reference , my path to the assets folder is :  /home/mayuxuan/.local/lib/python3.6/site-packages/gym/envs/mujoco/assets
 
