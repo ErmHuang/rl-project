@@ -15,25 +15,27 @@
 3. create conda environment via requirements.txt
    
 
-5. put the robotic_arm.xml  into your gym(mujoco) assets folder so that it can be found by (MujocoEnv.__init__(self, "robotic_arm-v1.xml", 2, **kwargs) )
+5. put the robotic_arm.xml  into your gym(mujoco) assets folder so that it can be found by
+
+   MujocoEnv.__init__(self, "robotic_arm-v1.xml", 2, **kwargs) 
 
    for reference , my path to the assets folder is :  /home/mayuxuan/.local/lib/python3.6/site-packages/gym/envs/mujoco/assets
 
    
 7. Clone the repository
 
-   git clone git@github.com:ErmHuang/rl-project.git
+      git clone git@github.com:ErmHuang/rl-project.git
    
-   cd rl-project
+      cd rl-project
    
 9. change the mesh path in robotic_arm.xml so that the render works
 
    
 11. run test
     
-   cd your_project_folder
+      cd your_project_folder
 
-   python test.py
+      python test.py
 
        
 
