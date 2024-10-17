@@ -1,10 +1,10 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: linux-64
-tensorflow==1.11.0
+tensorflow==1.11.0n
 python==3.6.10
 
 # Once installed and activated, please run
 # pip install --user gym==0.21.0 pyglet==1.5.27 imageio matplotlib scipy numpy jupyter
-# pip install mojuco_py
+# pip install mujoco_py
 # pip install gym[mujoco]

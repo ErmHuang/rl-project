@@ -19,10 +19,10 @@
 
 
 import gym
-import robotic_arm_gym  # 引入自定义的环境模块
+import robotic_arm_gym_v1  # 引入自定义的环境模块
 
 # 创建环境
-env = gym.make('RoboticArm-v0')
+env = gym.make('Reacher-v4')
 
 # 重置环境，得到初始观察值
 observation = env.reset()
@@ -38,7 +38,7 @@ for _ in range(10000):  # 模拟1000个时间步
     count += 1
 
     if count % 1000 == 0:
-        env.reset_model()
+        env.reset()
 
 
 
