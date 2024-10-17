@@ -2,10 +2,10 @@
 # import os
 
 # # 设置你的 .xml 文件路径
-# xml_file_path = os.path.expanduser('/home/erm/.mujoco/mujoco210/model/robotic_arm.xml')
+# xml_path = os.getcwd() + "/model/robotic_arm.xml"
 
 # # 创建 Mujoco 模型
-# model = mujoco_py.load_model_from_path(xml_file_path)
+# model = mujoco_py.load_model_from_path(xml_path)
 # sim = mujoco_py.MjSim(model)
 
 # # 创建渲染器
@@ -20,7 +20,6 @@
 
 import gym
 import robotic_arm_gym_v1  # 引入自定义的环境模块
-import robotic_arm_gym_v0  # 引入自定义的环境模块
 
 # 创建环境
 # env = gym.make('RoboticArm-v0')

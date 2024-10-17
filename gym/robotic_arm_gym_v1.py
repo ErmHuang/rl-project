@@ -179,8 +179,8 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         
         # 设置目标点————区域要更改一下
         # self.goal = self.np_random.uniform(low=-0.2, high=0.2, size=3)
-        goal_x = self.np_random.uniform(-0.65, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.65)
-        goal_y = self.np_random.uniform(-0.65, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.65)
+        goal_x = self.np_random.uniform(-0.5, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.5)
+        goal_y = self.np_random.uniform(-0.5, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.5)
         goal_z = self.np_random.uniform(low=0, high=0.5)
         self.goal = np.array([goal_x, goal_y, goal_z])
         qpos[-3:] = self.goal
