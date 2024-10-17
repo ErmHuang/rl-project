@@ -34,10 +34,10 @@ for _ in range(10000):  # 模拟1000个时间步
     env.render()  # 渲染环境
 
     action = env.action_space.sample()  # 随机生成一个动作
-    print(f"Action: {action}, Type: {type(action)}")
+    print(f"Action: {action}")
 
     observation, reward, done, info = env.step(action)  # 执行动作并得到反馈
-    print("observation: ", observation)
+    print("Observation: ", observation)
 
     count += 1
 

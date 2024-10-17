@@ -81,8 +81,6 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
 
 
     def step(self, action):
-        print("Applied action: ", action)
-        print("action space", self.action_space)
         
         # Reset the end-effector push state before every step
         self.end_effector_pushed = 0
