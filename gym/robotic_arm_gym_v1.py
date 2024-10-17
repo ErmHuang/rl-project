@@ -3,7 +3,7 @@ from gym import utils
 from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Discrete, Box
 from gym.envs.registration import register
-
+import os
 
 
 """
@@ -41,7 +41,7 @@ from gym.envs.registration import register
 
 """
 
-
+xml_path = os.getcwd() + "/model/robotic_arm.xml"
 
 
 class RoboticArmEnv(MujocoEnv, utils.EzPickle):
@@ -55,7 +55,7 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
 
         
         # 定义观察空间
-        observation_space = Box(low=-np.inf, high=np.inf, shape=(19,), dtype=np.float64)
+        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(19,), dtype=np.float64)
 
         # Discrete action space: 54 possible actions (3^3 for torques, plus 1 for the button)
         self.action_space = Discrete(54)
@@ -65,7 +65,7 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         self.button_state = 0
         self.end_effector_pushed = 0
         # 初始化 Mujoco 环境，传入 .xml 文件路径
-        MujocoEnv.__init__(self, "robotic_arm.xml", 2, **kwargs)
+        MujocoEnv.__init__(self, xml_path, 2, **kwargs)
 
 
     def _set_action_space(self):
@@ -89,15 +89,15 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
 
         # Action mapping for torque changes on the joints
         action_map = [
-            (-1, -1, -1), (-1, -1, 0), (-1, -1, 1),
-            (-1, 0, -1), (-1, 0, 0), (-1, 0, 1),
-            (-1, 1, -1), (-1, 1, 0), (-1, 1, 1),
-            (0, -1, -1), (0, -1, 0), (0, -1, 1),
-            (0, 0, -1), (0, 0, 0), (0, 0, 1),
-            (0, 1, -1), (0, 1, 0), (0, 1, 1),
-            (1, -1, -1), (1, -1, 0), (1, -1, 1),
-            (1, 0, -1), (1, 0, 0), (1, 0, 1),
-            (1, 1, -1), (1, 1, 0), (1, 1, 1)
+            (-0.1, -0.1, -0.1), (-0.1, -0.1, 0), (-0.1, -0.1, 0.1),
+            (-0.1, 0, -0.1), (-0.1, 0, 0), (-0.1, 0, 0.1),
+            (-0.1, 0.1, -0.1), (-0.1, 0.1, 0), (-0.1, 0.1, 0.1),
+            (0, -0.1, -0.1), (0, -0.1, 0), (0, -0.1, 0.1),
+            (0, 0, -0.1), (0, 0, 0), (0, 0, 0.1),
+            (0, 0.1, -0.1), (0, 0.1, 0), (0, 0.1, 0.1),
+            (0.1, -0.1, -0.1), (0.1, -0.1, 0), (0.1, -0.1, 0.1),
+            (0.1, 0, -0.1), (0.1, 0, 0), (0.1, 0, 0.1),
+            (0.1, 0.1, -0.1), (0.1, 0.1, 0), (0.1, 0.1, 0.1)
         ]
         
         # If action is < 27, it means it’s a torque action
@@ -178,7 +178,11 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         qvel[:3] = self.np_random.uniform(low=-0.1, high=0.1, size=3)  # 更新前 3 个关节的位置       
         
         # 设置目标点————区域要更改一下
-        self.goal = self.np_random.uniform(low=-0.2, high=0.2, size=3)
+        # self.goal = self.np_random.uniform(low=-0.2, high=0.2, size=3)
+        goal_x = self.np_random.uniform(-0.65, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.65)
+        goal_y = self.np_random.uniform(-0.65, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.65)
+        goal_z = self.np_random.uniform(low=0, high=0.5)
+        self.goal = np.array([goal_x, goal_y, goal_z])
         qpos[-3:] = self.goal
         
         self.set_state(qpos, qvel)
