@@ -19,10 +19,12 @@
 
 
 import gym
+import robotic_arm_v1  # 引入自定义的环境模块
 import robotic_arm_gym  # 引入自定义的环境模块
 
 # 创建环境
-env = gym.make('RoboticArm-v0')
+# env = gym.make('RoboticArm-v0')
+env = gym.make('RoboticArm-v1')
 
 # 重置环境，得到初始观察值
 observation = env.reset()
@@ -31,19 +33,21 @@ count = 0
 # 测试环境的运行
 for _ in range(10000):  # 模拟1000个时间步
     env.render()  # 渲染环境
+
     action = env.action_space.sample()  # 随机生成一个动作
+    print(f"Action: {action}, Type: {type(action)}")
+
     observation, reward, done, info = env.step(action)  # 执行动作并得到反馈
     print("observation: ", observation)
 
     count += 1
 
     if count % 1000 == 0:
-        env.reset_model()
-
+        env.reset()
 
 
     if done:  # 检查是否完成
-        observation = env.reset_model()  # 重置环境
+        observation = env.reset()  # 重置环境
 env.close()  # 关闭环境
 
 
