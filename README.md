@@ -1,8 +1,5 @@
 ## Installation
 1. install MuJoco 210
-   
-        pip install gym[mujoco]
-   or
         (https://github.com/google-deepmind/mujoco/releases)
    in your main folder ~/
    
@@ -23,19 +20,20 @@
 
    
 7. Clone the repository
-
-      git clone git@github.com:ErmHuang/rl-project.git
+  
+        git clone git@github.com:ErmHuang/rl-project.git
    
-      cd rl-project
+        cd rl-project
+
    
 9. change the mesh path in robotic_arm.xml so that the render works
 
    
 11. run test
     
-      cd your_project_folder
+        cd your_project_folder
 
-      python test.py
+        python test.py
 
        
 
