@@ -50,11 +50,10 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
     and an additional action for pushing a button with the end-effector.
     """
     def __init__(self, **kwargs):
-        # 调用 EzPickle 初始化
+        # Call EzPickle initialization
         utils.EzPickle.__init__(self, **kwargs)
 
-        
-        # 定义观察空间
+        # Define the observation space
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(19,), dtype=np.float64)
 
         # Discrete action space: 54 possible actions (3^3 for torques, plus 1 for the button)
@@ -64,20 +63,19 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         self.torques = np.zeros(3)
         self.button_state = 0
         self.end_effector_pushed = 0
-        # 初始化 Mujoco 环境，传入 .xml 文件路径
+        # Initialize the Mujoco environment, passing the .xml model file path
         MujocoEnv.__init__(self, xml_path, 2, **kwargs)
 
 
     def _set_action_space(self):
         self.action_space = Discrete(54)
     
+
     def reset(self):
         self.sim.reset()
         ob = self.reset_model()
-        self.done = False  # 确保 done 标志初始化为 False
+        self.done = False  # Ensure the 'done' flag is initialized to False
         return ob
-
-
 
 
     def step(self, action):
@@ -169,15 +167,15 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         return reward, done
     
     def reset_model(self):
-        # 随机初始化机械臂位置
+        # Randomly initialize the robotic arm position
 
-        qpos = self.init_qpos.copy()  # 复制 init_qpos 避免修改原始数据
-        qpos[:3] = self.np_random.uniform(low=-0.1, high=0.1, size=3)  # 更新前 3 个关节的位置       
+        qpos = self.init_qpos.copy()  # Copy init_qpos to avoid modifying the original data
+        qpos[:3] = self.np_random.uniform(low=-0.1, high=0.1, size=3)  # Update the positions of the first 3 joints       
         # qvel = self.np_random.uniform(low=-0.005, high=0.005, size=3) + self.init_qvel
-        qvel = self.init_qvel.copy()  # 复制 init_qpos 避免修改原始数据
-        qvel[:3] = self.np_random.uniform(low=-0.1, high=0.1, size=3)  # 更新前 3 个关节的位置       
+        qvel = self.init_qvel.copy()  # Copy init_qvel to avoid modifying the original data
+        qvel[:3] = self.np_random.uniform(low=-0.1, high=0.1, size=3)  # Update the velocities of the first 3 joints       
         
-        # 设置目标点————区域要更改一下
+        # Randomly set the target position
         # self.goal = self.np_random.uniform(low=-0.2, high=0.2, size=3)
         goal_x = self.np_random.uniform(-0.5, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.5)
         goal_y = self.np_random.uniform(-0.5, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.5)
@@ -194,9 +192,9 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def _get_obs(self):
-        # 获取观察值，包括关节位置、速度和末端执行器与目标的距离
+        # Get observations, including joint positions, velocities, and the distance between the end effector and the target
         theta = self.data.qpos.flat[:3]
-        angular_velocity = self.data.qvel.flat[:3]  # 获取 3 个关节的速度
+        angular_velocity = self.data.qvel.flat[:3]  # Get the velocities of the 3 joints
         end_effector_pos = self.get_body_com("end_effector")
         target_pos = self.get_body_com("target")
 
@@ -215,12 +213,12 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         return observation
 
     def viewer_setup(self):
-        # 设置视图
+        # Set up the view
         assert self.viewer is not None
         self.viewer.cam.trackbodyid = 0
 
 
 register(
     id='RoboticArm-v1',
-    entry_point='robotic_arm_gym_v1:RoboticArmEnv',  # 替换为定义环境的模块名
+    entry_point='robotic_arm_gym_v1:RoboticArmEnv',  # Replace with the module name that defines the environment
 )
