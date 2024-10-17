@@ -3,7 +3,7 @@
    
         pip install gym[mujoco]
    or
-        https://github.com/google-deepmind/mujoco/releases
+        (link)(https://github.com/google-deepmind/mujoco/releases)
    in your main folder ~/
    
         mkdir .mujoco
