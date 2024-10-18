@@ -39,11 +39,13 @@
 This project is licensed under the MIT License.
 
 ## Troubleshooting
-Error 1: "File "/home/erm/.local/lib/python3.6/site-packages/gym/envs/mujoco/mujoco_env.py", line 72, in __init__
+# Error 1: 
+When running "python gym/test.py", it reports:
+"File "/home/user/.local/lib/python3.6/site-packages/gym/envs/mujoco/mujoco_env.py", line 72, in __init__
     assert not done
 AssertionError" 
-when running "python gym/test.py"
 
-Solution: Try to run "python gym/test.py" several times
+# Solution: 
+Try to run "python gym/test.py" several times
 
 
