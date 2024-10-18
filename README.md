@@ -1,5 +1,5 @@
 ## Installation
-1. install MuJoco 210
+1. Install MuJoco 210
         (https://github.com/google-deepmind/mujoco/releases)
    in your main folder ~/
    
@@ -9,22 +9,27 @@
    
         ./simulate
 
-2. create conda environment via requirements.txt
+2. Create conda environment via environment.yml
+
+        conda env create -f environment.yml
    
    
-3. clone the repository
+3. Clone the repository
   
         git clone git@github.com:ErmHuang/rl-project.git
    
         cd rl-project
 
    
-4. change the mesh path in robotic_arm.xml so that the render works
+4. Modify the meshdir path in `model/robotic_arm.xml` to point to your own directory so that the render works, such as
 
+        <meshdir="$HOME/YOUR_PROJECT_FOLDER/rl-project/meshes/"/>
    
-5. activate conda env and run the test
+5. Activate conda env and run the test
     
-        cd YOUR_PROJECT_FOLDER
+        cd YOUR_PROJECT_FOLDER/rl-project
+
+        conda activate me5418_group42
 
         python gym/test.py
 

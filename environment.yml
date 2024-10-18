@@ -1,0 +1,17 @@
+name: me5418_group42
+channels:
+  - defaults
+dependencies:
+  - cython=0.29.24
+  - pip=21.2.2
+  - python=3.6.10
+  - scipy=1.5.2
+  - tensorflow=1.11.0
+  - pip:
+      - fasteners==0.19
+      - glfw==2.7.0
+      - lockfile==0.12.2
+      - mujoco-py==2.1.2.14
+      - numpy==1.19.5
+      - setuptools==39.1.0
+      - gym==0.21.0
