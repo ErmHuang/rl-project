@@ -1,42 +1,42 @@
 # import mujoco_py
 # import os
 
-# # 设置你的 .xml 文件路径
+# # Set your .xml file path
 # xml_path = os.getcwd() + "/model/robotic_arm.xml"
 
-# # 创建 Mujoco 模型
+# # Create the Mujoco model
 # model = mujoco_py.load_model_from_path(xml_path)
 # sim = mujoco_py.MjSim(model)
 
-# # 创建渲染器
+# # Create the renderer
 # viewer = mujoco_py.MjViewer(sim)
 
-# # 运行仿真并渲染
-# for _ in range(10000):  # 1000 次仿真步长
-#     sim.step()  # 仿真一步
-#     viewer.render()  # 渲染仿真环境
+# # Run the simulation and render
+# for _ in range(10000): # 1000 simulation steps
+#     sim.step()  # Simulate one step
+#     viewer.render()  # Render the simulation environment
 
 
 
 import gym
-import robotic_arm_gym_v1  # 引入自定义的环境模块
+import robotic_arm_gym_v1  # Import the custom environment module
 
-# 创建环境
+# Create the environment
 # env = gym.make('RoboticArm-v0')
 env = gym.make('RoboticArm-v1')
 
-# 重置环境，得到初始观察值
+# Reset the environment and get the initial observations
 observation = env.reset()
 
 count = 0
-# 测试环境的运行
-for _ in range(10000):  # 模拟1000个时间步
-    env.render()  # 渲染环境
+# Test the environment's execution
+for _ in range(10000):  # Simulate 1000 time steps
+    env.render()  # Render the simulation environment
 
-    action = env.action_space.sample()  # 随机生成一个动作
+    action = env.action_space.sample()  # Randomly generate an action
     print(f"Action: {action}, Type: {type(action)}")
 
-    observation, reward, done, info = env.step(action)  # 执行动作并得到反馈
+    observation, reward, done, info = env.step(action)  # Execute the action and get feedback
     print("observation: ", observation)
 
     count += 1
@@ -45,29 +45,29 @@ for _ in range(10000):  # 模拟1000个时间步
         env.reset()
 
 
-    if done:  # 检查是否完成
-        observation = env.reset()  # 重置环境
-env.close()  # 关闭环境
+    if done:  # Check if done
+        observation = env.reset()  # Reset environment
+env.close()  # Close environment
 
 
 
 
 # import gym
 
-# # 创建 Reacher 环境
+# # Create the  Reacher environment
 # env = gym.make('Reacher-v2') 
 
-# # 重置环境，获得初始观测
-# observation = env.reset()  # 只获取一个返回值
+# # Reset the environment and obtain the initial observation
+# observation = env.reset()  # Only get one return value
 
-# # 进行仿真
-# for _ in range(1000):  # 设置仿真步数
-#     action = env.action_space.sample()  # 随机选择一个动作
-#     observation, reward, done, info = env.step(action)  # 施加动作
+# # Perform the simulation
+# for _ in range(1000):  # Set the number of simulation steps
+#     action = env.action_space.sample()   # Randomly generate an action
+#     observation, reward, done, info = env.step(action)  # Apply the action
 
 #     if done:
-#         observation = env.reset()  # 如果达到终止条件，则重置环境
+#         observation = env.reset()  # Reset the environment if the termination condition is reached
 
-#     env.render()  # 渲染环境
+#     env.render() # Render the simulation environment
 
-# env.close()  # 关闭环境
+# env.close()  # Close environment

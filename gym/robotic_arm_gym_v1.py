@@ -181,6 +181,7 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         goal_y = self.np_random.uniform(-0.5, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.5)
         goal_z = self.np_random.uniform(low=0, high=0.5)
         self.goal = np.array([goal_x, goal_y, goal_z])
+        self.sim.model.body_pos[self.model.body_name2id('target')] = self.goal
         qpos[-3:] = self.goal
         
         self.set_state(qpos, qvel)
@@ -196,7 +197,8 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         theta = self.data.qpos.flat[:3]
         angular_velocity = self.data.qvel.flat[:3]  # Get the velocities of the 3 joints
         end_effector_pos = self.get_body_com("end_effector")
-        target_pos = self.get_body_com("target")
+        # target_pos = self.get_body_com("target")
+        target_pos = self.sim.model.body_pos[self.model.body_name2id('target')]
 
         position_diff = end_effector_pos - target_pos
         
