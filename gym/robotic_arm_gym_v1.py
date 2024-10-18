@@ -145,15 +145,15 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         reward = 0
         
         # 1. Dense negative reward based on the relative distance
-        reward += -0.01 * relative_distance
+        reward += - relative_distance ** 2
         
         # 2. Positive reward of 1 when the end-effector is close enough to the target
         if relative_distance < 0.05:
-            reward += 1
+            reward += 10
         
         # 3. Penalty for invalid button press
         if self.end_effector_pushed == 1 and relative_distance >= 0.05:
-            reward -= 1  # Penalty for invalid push action
+            reward -= 5  # Penalty for invalid push action
 
         # 4. Large positive reward when the button is successfully pushed
         if self.button_state == 1:
@@ -175,12 +175,11 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         
         # Randomly set the target position
         # self.goal = self.np_random.uniform(low=-0.2, high=0.2, size=3)
-        goal_x = self.np_random.uniform(-0.5, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.5)
-        goal_y = self.np_random.uniform(-0.5, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.5)
-        goal_z = self.np_random.uniform(low=0, high=0.5)
+        goal_x = self.np_random.uniform(-0.75, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.75)
+        goal_y = self.np_random.uniform(-0.75, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.75)
+        goal_z = self.np_random.uniform(low=0, high=0.75)
         self.goal = np.array([goal_x, goal_y, goal_z])
         self.sim.model.body_pos[self.model.body_name2id('target')] = self.goal
-        qpos[-3:] = self.goal
         
         self.set_state(qpos, qvel)
         # Reset torques, button state, and end-effector push state
@@ -195,7 +194,6 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         theta = self.data.qpos.flat[:3]
         angular_velocity = self.data.qvel.flat[:3]  # Get the velocities of the 3 joints
         end_effector_pos = self.get_body_com("end_effector")
-        # target_pos = self.get_body_com("target")
         target_pos = self.sim.model.body_pos[self.model.body_name2id('target')]
 
         position_diff = end_effector_pos - target_pos
