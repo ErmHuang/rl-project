@@ -34,10 +34,11 @@ for _ in range(10000):  # Simulate 1000 time steps
     env.render()  # Render the simulation environment
 
     action = env.action_space.sample()  # Randomly generate an action
-    print(f"Action: {action}, Type: {type(action)}")
+    print(f"Action: ", action)
 
     observation, reward, done, info = env.step(action)  # Execute the action and get feedback
-    print("observation: ", observation)
+    print("Observation: ", observation)
+    print("Get Reward: ", reward)
 
     count += 1
 
