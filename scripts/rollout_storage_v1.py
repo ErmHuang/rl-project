@@ -1,19 +1,19 @@
+
 import torch
 
 class RolloutStorage:
     class Transition:
         def __init__(self):
             self.observations = None
-            # critic use same obs
+            # critic uses the same observations
             # self.critic_observations = None   
             self.actions = None
             self.rewards = None
             self.dones = None
             self.values = None
             self.actions_log_prob = None
-            self.action_prob = None
-
-            self.hidden_states = None
+            self.action_probs = None
+            # self.hidden_states = None
         
         def clear(self):
             self.__init__()
@@ -32,12 +32,13 @@ class RolloutStorage:
         self.dones = torch.zeros(num_transitions_per_env, num_envs, 1, device=self.device).byte()
 
         # For PPO
-        # only the chosen action's log prob
+        # only the chosen action's log probability
         self.actions_log_prob = torch.zeros(num_transitions_per_env, num_envs, 1, device=self.device)
         self.values = torch.zeros(num_transitions_per_env, num_envs, 1, device=self.device)
         self.returns = torch.zeros(num_transitions_per_env, num_envs, 1, device=self.device)
         self.advantages = torch.zeros(num_transitions_per_env, num_envs, 1, device=self.device)
-        self.action_probs = torch.zeros(num_transitions_per_env, num_envs, *actions_shape, device=self.device)
+        # self.action_probs = torch.zeros(num_transitions_per_env, num_envs, *actions_shape, device=self.device)
+        self.action_probs = torch.zeros(num_transitions_per_env, num_envs, 54, device=self.device)
 
         self.num_transitions_per_env = num_transitions_per_env
         self.num_envs = num_envs
@@ -49,16 +50,16 @@ class RolloutStorage:
         if self.step >= self.num_transitions_per_env:
             raise AssertionError("Rollout buffer overflow")
         self.observations[self.step].copy_(transition.observations)
-        self.actions[self.step].copy_(transition.actions)
+        self.actions[self.step].copy_(transition.actions.clone().detach())
         self.rewards[self.step].copy_(transition.rewards.view(-1, 1))
         self.dones[self.step].copy_(transition.dones.view(-1, 1))
         self.values[self.step].copy_(transition.values)
         self.actions_log_prob[self.step].copy_(transition.actions_log_prob.view(-1, 1))
-        # self.action_probs[self.step].copy_(transition.action_probs)
+        self.action_probs[self.step].copy_(transition.action_probs)
         self.step += 1
 
     def clear(self):
-        self.__init__()
+        self.step = 0
 
 
     def compute_returns(self, last_values, gamma, lam):
@@ -79,7 +80,7 @@ class RolloutStorage:
         self.advantages = (self.advantages - self.advantages.mean()) / (self.advantages.std() + 1e-8)
 
 
-    # get some statistics , not influcing the training process ----visualization
+    # Get some statistics, not affecting the training process ----visualization
     def get_statistics(self):
         done = self.dones
         done[-1] = 1
@@ -87,5 +88,22 @@ class RolloutStorage:
         done_indices = torch.cat((flat_dones.new_tensor([-1], dtype=torch.int64), flat_dones.nonzero(as_tuple=False)[:, 0]))
         trajectory_lengths = (done_indices[1:] - done_indices[:-1])
         return trajectory_lengths.float().mean(), self.rewards.mean()
-    
- 
+
+
+    def mini_batch_generator(self, num_mini_batches, num_learning_epochs):
+        batch_size = self.num_envs * self.num_transitions_per_env
+        mini_batch_size = batch_size // num_mini_batches
+
+        # Shuffle indices to generate mini-batches
+        for epoch in range(num_learning_epochs):
+            indices = torch.randperm(batch_size)
+            for start in range(0, batch_size, mini_batch_size):
+                obs_batch = self.observations.view(-1, *self.obs_shape)[indices[start:start + mini_batch_size]]
+                actions_batch = self.actions.view(-1, *self.actions_shape)[indices[start:start + mini_batch_size]]
+                rewards_batch = self.rewards.view(-1)[indices[start:start + mini_batch_size]]
+                dones_batch = self.dones.view(-1)[indices[start:start + mini_batch_size]]
+                values_batch = self.values.view(-1)[indices[start:start + mini_batch_size]]
+                actions_log_prob_batch = self.actions_log_prob.view(-1)[indices[start:start + mini_batch_size]]
+                action_probs_batch = self.action_probs.view(-1, 54)[indices[start:start + mini_batch_size]]  # Ensure matching shape
+
+                yield obs_batch, actions_batch, rewards_batch, dones_batch, values_batch, actions_log_prob_batch, action_probs_batch

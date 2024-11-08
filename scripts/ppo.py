@@ -3,14 +3,15 @@ import torch.nn as nn
 import torch.optim as optim
 
 from network import ActorCritic
-from rollout_storage import RolloutStorage
-
+from rollout_storage_v1 import RolloutStorage
 
 class PPO:
     actor_critic: ActorCritic
     def __init__(self,
                  actor_critic,
+                 rollout_storage,
                  num_learning_epochs=1,
+                 num_mini_batches=1,
                  clip_param=0.2,
                  gamma=0.998,
                  lam=0.95,
@@ -33,14 +34,14 @@ class PPO:
         # PPO components
         self.actor_critic = actor_critic
         self.actor_critic.to(self.device)
-        self.storage = None # initialized later
+        self.storage = rollout_storage
         self.optimizer = optim.Adam(self.actor_critic.parameters(), lr=learning_rate)
         self.transition = RolloutStorage.Transition()
 
         # PPO parameters
         self.clip_param = clip_param
         self.num_learning_epochs = num_learning_epochs
-        # self.num_mini_batches = num_mini_batches
+        self.num_mini_batches = num_mini_batches
         self.value_loss_coef = value_loss_coef
         self.entropy_coef = entropy_coef
         self.gamma = gamma
@@ -48,26 +49,33 @@ class PPO:
         self.max_grad_norm = max_grad_norm
         self.use_clipped_value_loss = use_clipped_value_loss
 
-    def init_storage(self, num_envs, num_transitions_per_env, actor_obs_shape, action_shape):
-        self.storage = RolloutStorage(num_envs, num_transitions_per_env, actor_obs_shape, action_shape, self.device)
+    def init_storage(self, num_envs, num_transitions_per_env, actor_obs_shape, critic_obs_shape, action_shape):
+        self.storage = RolloutStorage(num_envs, num_transitions_per_env, actor_obs_shape, critic_obs_shape, action_shape, self.device)
 
-    # def test_mode(self):
-    #     self.actor_critic.test()
+    def test_mode(self):
+        self.actor_critic.test()
     
     def train_mode(self):
         self.actor_critic.train()
 
     def act(self, obs, critic_obs):
-        # Compute the actions and values
-        self.transition.actions = self.actor_critic.act(obs).detach()
+        # Get the action and the corresponding probability distribution
+        action, action_probs = self.actor_critic.act(obs)
+
+        # Save the action to transition
+        self.transition.actions = action.detach()
+        self.transition.action_probs = action_probs.detach()
+
         self.transition.values = self.actor_critic.evaluate(critic_obs).detach()
-        self.transition.actions_log_prob = self.actor_critic.get_actions_log_prob(self.transition.actions).detach()
-        # self.transition.action_probs = self.actor_critic.actor(obs).detach()
+        self.transition.actions_log_prob = self.actor_critic.get_actions_log_prob(self.transition.actions, self.transition.action_probs).detach()
+
         # self.transition.action_mean = self.actor_critic.action_mean.detach()
         # self.transition.action_sigma = self.actor_critic.action_std.detach()
-        # need to record obs and critic_obs before env.step()
+
+        # Need to record obs and critic_obs before env.step()
         self.transition.observations = obs
-        # self.transition.critic_observations = obs
+        self.transition.critic_observations = critic_obs
+
         return self.transition.actions
     
     def process_env_step(self, rewards, dones, infos):
@@ -83,51 +91,46 @@ class PPO:
         self.actor_critic.reset(dones)
     
     def compute_returns(self, last_critic_obs):
-        last_values= self.actor_critic.evaluate(last_critic_obs).detach()
+        last_values = self.actor_critic.evaluate(last_critic_obs).detach()
         self.storage.compute_returns(last_values, self.gamma, self.lam)
-    
+
     def update(self):
         mean_value_loss = 0
         mean_surrogate_loss = 0
 
-        obs_batch = self.storage.observations.flatten(0, 1)
-        actions_batch = self.storage.actions.flatten(0, 1)
-        target_values_batch = self.storage.values.flatten(0, 1)
-        returns_batch = self.storage.returns.flatten(0, 1)
-        old_actions_log_prob_batch = self.storage.actions_log_prob.flatten(0, 1)
-        advantages_batch = self.storage.advantages.flatten(0, 1)
+        generator = self.storage.mini_batch_generator(self.num_mini_batches, self.num_learning_epochs)
+        for obs_batch, actions_batch, rewards_batch, dones_batch, values_batch, actions_log_prob_batch, action_probs_batch in generator:
+            actions_batch = actions_batch.to(torch.int64)
+            # Action log_prob calculation
+            actions_log_prob_batch = self.actor_critic.get_actions_log_prob(actions_batch, action_probs_batch)
+            value_batch = self.actor_critic.evaluate(obs_batch)
 
-        # Perform forward pass to get updated log probabilities and values
-        logits = self.actor_critic.actor(obs_batch)
-        dist = torch.distributions.Categorical(logits=logits)
-        actions_log_prob_batch = dist.log_prob(actions_batch)
-        value_batch = self.actor_critic.evaluate(obs_batch)
+            rewards_batch = rewards_batch.unsqueeze(1)
+            # KL divergence and entropy terms can be ignored
+            ratio = torch.exp(actions_log_prob_batch - actions_log_prob_batch.detach())
+            print(f"Shape of ratio: {ratio.shape}")
+            print(f"Shape of rewards_batch: {rewards_batch.shape}")
+            surrogate_loss1 = ratio * rewards_batch  # Using advantage instead of reward is better
+            surrogate_loss2 = torch.clamp(ratio, 1.0 - self.clip_param, 1.0 + self.clip_param) * rewards_batch
+            surrogate_loss = -torch.min(surrogate_loss1, surrogate_loss2).mean()
 
-        # Surrogate loss calculation
-        ratio = torch.exp(actions_log_prob_batch - old_actions_log_prob_batch)
-        surrogate = ratio * advantages_batch
-        surrogate_clipped = torch.clamp(ratio, 1 - self.clip_param, 1 + self.clip_param) * advantages_batch
-        surrogate_loss = -torch.min(surrogate, surrogate_clipped).mean()
+            # Value function loss
+            value_loss = (rewards_batch - value_batch).pow(2).mean()
 
-        # Value function loss
-        value_loss = (returns_batch - value_batch).pow(2).mean()
+            loss = surrogate_loss + self.value_loss_coef * value_loss
 
-        # Total loss
-        loss = surrogate_loss + self.value_loss_coef * value_loss
+            # Backpropagation and gradient update
+            self.optimizer.zero_grad()
+            loss.backward()
+            nn.utils.clip_grad_norm_(self.actor_critic.parameters(), self.max_grad_norm)
+            self.optimizer.step()
 
-        # Gradient update
-        self.optimizer.zero_grad()
-        loss.backward()
-        nn.utils.clip_grad_norm_(self.actor_critic.parameters(), self.max_grad_norm)
-        self.optimizer.step()
+            mean_value_loss += value_loss.item()
+            mean_surrogate_loss += surrogate_loss.item()
 
-        mean_value_loss = value_loss.item()
-        mean_surrogate_loss = surrogate_loss.item()
-
-        # Clear storage after update
+        num_updates = self.num_learning_epochs * self.num_mini_batches
+        mean_value_loss /= num_updates
+        mean_surrogate_loss /= num_updates
         self.storage.clear()
+
         return mean_value_loss, mean_surrogate_loss
-
-
-
-    

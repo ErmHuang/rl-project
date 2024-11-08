@@ -3,40 +3,46 @@ import torch.nn as nn
 from torch.distributions import Normal
 import torch.nn.functional as F
 
-class ActorCritic(nn.Module):
-    def __init__(self, state_dim, action_dim=54, hidden_dim=256):
-        super(ActorCritic, self).__init__()
-        
-        # Define the Actor network
-        self.actor = nn.Sequential(
-            nn.Linear(state_dim, hidden_dim),  # Input layer
-            nn.ReLU(),                         # Activation function
-            nn.Linear(hidden_dim, hidden_dim),  # Hidden layer
-            nn.ReLU(),
-            nn.Linear(hidden_dim, action_dim),  # Output layer(the probability of an action)
-            nn.Softmax(dim=-1)                  # Convert output to probability using Softmax
-        )
-        
-        # Define the Critic network
-        self.critic = nn.Sequential(
-            nn.Linear(state_dim, hidden_dim),   # Input layer
-            nn.ReLU(),                          # Activation function
-            nn.Linear(hidden_dim, hidden_dim),  # Hidden layer
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1)            # Output layer(the value of the current state)
-        )
 
-        print(f"Actor MLP: {self.actor}")
-        print(f"Critic MLP: {self.critic}")
+class ActorCritic(nn.Module):
+    def __init__(self, state_dim, action_dim=54, hidden_layers=[256, 256], activation="ReLU"):
+        super(ActorCritic, self).__init__()
+
+        # Actor network definition
+        actor_layers = []
+        input_dim = state_dim
+        for hidden_dim in hidden_layers:
+            actor_layers.append(nn.Linear(input_dim, hidden_dim))
+            actor_layers.append(getattr(nn, activation)())  # Dynamic activation function
+            input_dim = hidden_dim
+        # Combine hidden layers into a single network
+        self.actor_body = nn.Sequential(*actor_layers)
+
+        # Actor output layer
+        self.actor_output = nn.Linear(input_dim, action_dim)
+        self.actor_softmax = nn.Softmax(dim=-1)
+
+        # Critic network definition (independent layers)
+        critic_layers = []
+        input_dim = state_dim
+        for hidden_dim in hidden_layers:
+            critic_layers.append(nn.Linear(input_dim, hidden_dim))
+            critic_layers.append(getattr(nn, activation)())
+            input_dim = hidden_dim
+        self.critic_body = nn.Sequential(*critic_layers)
+        self.critic_output = nn.Linear(input_dim, 1)
         
     def forward(self, state):
         # Forward propagation
-        
-        # Strategy network outputs probability distributions of actions
-        policy_dist = self.actor(state)  
-        # Value function network outputs the value of the state
-        value = self.critic(state)       
-        return policy_dist, value
+        # Actor part
+        actor_features = self.actor_body(state)
+        action_probs = self.actor_softmax(self.actor_output(actor_features))
+
+        # Critic part
+        critic_features = self.critic_body(state)
+        state_value = self.critic_output(critic_features)
+
+        return action_probs, state_value
     
     @staticmethod
     # not used at the moment
@@ -47,69 +53,46 @@ class ActorCritic(nn.Module):
 
     def reset(self, dones=None):
         pass
-
-    
-    @property
-    def action_mean(self):
-        return self.distribution.mean
-
-    @property
-    def action_std(self):
-        return self.distribution.stddev
     
     @property
     def entropy(self):
         return self.distribution.entropy().sum(dim=-1)
 
-    def update_distribution(self, observations):
-        probabilities = self.actor(observations)  # Output is [batch_size, num_actions]
-        self.distribution = probabilities  # Storing probability distributions
-
 
     def act(self, observations, **kwargs):
-        self.update_distribution(observations)
-        
-        # Sample using multinomial, select an action
-        return torch.multinomial(self.distribution, num_samples=1)
+        # Compute action probability distribution
+        actor_features = self.actor_body(observations)  # Pass through hidden layers
+        action_probs = self.actor_softmax(self.actor_output(actor_features))   # Output layer and softmax for probabilities
 
-    
-    def get_actions_log_prob(self, actions):
-        # Check the shape of actions and distribution to ensure compatibility
+        assert action_probs.shape[0] == observations.shape[0], "Batch size of action_probs does not match observations"
+        # Sample an action based on the probability distribution
+        action = torch.multinomial(action_probs, num_samples=1).squeeze(-1)
+
+        # Store action_probs for log_prob calculation
+        self.action_probs = action_probs
+        return action, action_probs  # Return both action and probability distribution
+
+
+    def get_actions_log_prob(self, actions, action_probs):
+        actions = actions.to(torch.int64)
         if actions.dim() == 1:
-            # If actions is of shape [batch_size], we need to add an extra dimension for gathering
-            actions = actions.unsqueeze(1)
+            actions = actions.unsqueeze(1)  # 确保 actions 维度为 [batch_size, 1]
 
-        # Gather the log probabilities for the actions taken
-        action_log_probs = self.distribution.gather(1, actions).log()
+        log_prob = action_probs.gather(1, actions).log()  # 使用 gather 索引
+        return log_prob
 
-        # Remove the unnecessary dimension, if required
-        return action_log_probs.squeeze()
+        # return (self.action_probs.gather(1, actions.unsqueeze(1)).log()).squeeze()  # Calculate the log probability
+
 
     def act_inference(self, observations):
-        actions_distribution = self.actor(observations)
+        # Compute action probability distribution
+        actor_features = self.actor_body(observations)  # Pass through hidden layers
+        actions_distribution = self.actor_softmax(self.actor_output(actor_features))  # Output layer and softmax for probabilities
+
         return actions_distribution
 
     def evaluate(self, critic_observations, **kwargs):
-        value = self.critic(critic_observations)
+        critic_features = self.critic_body(critic_observations)
+        value = self.critic_output(critic_features)
         return value
     
-
-    
-
-# Demo
-if __name__ == "__main__":
-    # The state dimension is 19 and the action space has 54 discrete actions
-    state_dim = 19
-    action_dim = 54
-    model = ActorCritic(state_dim, action_dim)
-    
-    # Generate a random state to test forward propagation
-    test_state = torch.randn(1, state_dim)  # A random state with a batch size of 1
-    policy, value = model(test_state)
-
-    action = model.act(test_state)
-
-    
-    print(f"Policy (action probabilities): {policy}")
-    print(f"Value (state value): {value}")
-    print(f"chosen action: {action}")
