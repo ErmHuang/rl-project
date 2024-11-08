@@ -31,12 +31,12 @@
 
         conda activate me5418_group42
 
-        python gym/test.py
+        python scripts/learning_agent.py
 
        
 
 ## Structure
-- gym/: Custom gym environments and test demo.
+- scripts/: python files.
 - meshes/: 3D models stl files for simulations.
 - model/: Models used in the reinforcement learning algorithms.
 
@@ -45,12 +45,12 @@ This project is licensed under the MIT License.
 
 ## Troubleshooting
 ### Error 1: 
-When running "python gym/test.py", it reports:
+When running "python scripts/learning_agents.py", it reports:
 "File "/home/user/.local/lib/python3.6/site-packages/gym/envs/mujoco/mujoco_env.py", line 72, in __init__
     assert not done
 AssertionError" 
 
 ### Solution: 
-Try to run "python gym/test.py" several times
+Try to run "python scripts/learning_agent.py" several times
 
 
