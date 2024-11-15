@@ -66,15 +66,15 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
 
         # Initial torques (in the range [-1, 1]) for the three joints
         self.torques = np.zeros(3)
-        self.button_state = 0
-        self.end_effector_pushed = 0
+        # self.button_state = 0
+        # self.end_effector_pushed = 0
         self.num_envs = 1
         # Initialize the Mujoco environment, passing the .xml model file path
         MujocoEnv.__init__(self, xml_path, 2, **kwargs)
 
 
     def _set_action_space(self):
-        self.action_space = Discrete(54)
+        self.action_space = Discrete(27)
     
 
     def reset(self):
@@ -87,7 +87,7 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
     def step(self, action):
         
         # Reset the end-effector push state before every step
-        self.end_effector_pushed = 0
+        # self.end_effector_pushed = 0
 
         # Action mapping for torque changes on the joints
         action_map = [
@@ -102,15 +102,19 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
             (0.1, 0.1, -0.1), (0.1, 0.1, 0), (0.1, 0.1, 0.1)
         ]
         
-        # If action is < 27, it means it’s a torque action
-        if action < 27:
-            torque_delta = np.array(action_map[action])
-            self.torques = np.clip(self.torques + torque_delta, -10.0, 10.0)
-        else:
-            # Action 27-53 represents the torque + button operation (action-27)
-            torque_delta = np.array(action_map[action - 27])
-            self.torques = np.clip(self.torques + torque_delta, -10.0, 10.0)
-            self._attempt_push_button()  # Simulate the button push action
+        # # If action is < 27, it means it’s a torque action
+        # if action < 27:
+        #     torque_delta = np.array(action_map[action])
+        #     self.torques = np.clip(self.torques + torque_delta, -10.0, 10.0)
+        # else:
+        #     # Action 27-53 represents the torque + button operation (action-27)
+        #     torque_delta = np.array(action_map[action - 27])
+        #     self.torques = np.clip(self.torques + torque_delta, -10.0, 10.0)
+        #     self._attempt_push_button()  # Simulate the button push action
+
+        torque_delta = np.array(action_map[action])
+        self.torques = np.clip(self.torques + torque_delta, -10.0, 10.0)
+
 
         # Perform simulation with the updated torques
         self.do_simulation(self.torques, self.frame_skip)
@@ -124,21 +128,21 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         # Return observations, reward, done flag, and additional info
         return ob, reward, done, {}
 
-    def _attempt_push_button(self):
-        """
-        Handles the logic for the button push and updates the end-effector state.
-        """
-        end_effector_pos = self.get_body_com("end_effector")
-        target_pos = self.get_body_com("target")
-        relative_distance = np.linalg.norm(end_effector_pos - target_pos)
+    # def _attempt_push_button(self):
+    #     """
+    #     Handles the logic for the button push and updates the end-effector state.
+    #     """
+    #     end_effector_pos = self.get_body_com("end_effector")
+    #     target_pos = self.get_body_com("target")
+    #     relative_distance = np.linalg.norm(end_effector_pos - target_pos)
 
-        self.end_effector_pushed = 1  # End-effector is in the "pushed" state
+    #     self.end_effector_pushed = 1  # End-effector is in the "pushed" state
 
-        # If the end-effector is close enough, mark it as pushed
-        if relative_distance < 0.05:
-            self.button_state = 1  # Button is switched to "on"
-        else:
-            self.button_state = 0  # Invalid push, button remains "off"
+    #     # If the end-effector is close enough, mark it as pushed
+    #     if relative_distance < 0.05:
+    #         self.button_state = 1  # Button is switched to "on"
+    #     else:
+    #         self.button_state = 0  # Invalid push, button remains "off"
 
     def _calculate_reward(self):
         """
@@ -154,15 +158,15 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         reward += - relative_distance ** 2
         
         # 2. Positive reward of 1 when the end-effector is close enough to the target
-        if relative_distance < 0.05:
-            reward += 10
+        # if relative_distance < 0.05:
+        #     reward += 10
         
         # 3. Penalty for invalid button press
-        if self.end_effector_pushed == 1 and relative_distance >= 0.05:
-            reward -= 5  # Penalty for invalid push action
+        # if self.end_effector_pushed == 1 and relative_distance >= 0.05:
+        #     reward -= 5  # Penalty for invalid push action
 
         # 4. Large positive reward when the button is successfully pushed
-        if self.button_state == 1:
+        if  relative_distance <= 0.05:
             reward += 100
             done = True
         else:
@@ -190,8 +194,8 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         self.set_state(qpos, qvel)
         # Reset torques, button state, and end-effector push state
         self.torques = np.zeros(3)
-        self.button_state = 0
-        self.end_effector_pushed = 0
+        # self.button_state = 0
+        # self.end_effector_pushed = 0
 
         return self._get_obs()
 
@@ -212,7 +216,7 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
             end_effector_pos,           # X and Y coordinates of the end-effector
             angular_velocity,           # Angular velocities
             position_diff,              # Difference in positions (x, y, z)
-            [self.end_effector_pushed]  # End-effector push state (0 or 1)
+            # [self.end_effector_pushed]  # End-effector push state (0 or 1)
         ])
         return observation
 

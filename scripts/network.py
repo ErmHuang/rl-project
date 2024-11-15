@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 
 class ActorCritic(nn.Module):
-    def __init__(self, state_dim, action_dim=54, hidden_layers=[256, 256], activation="ReLU"):
+    def __init__(self, state_dim, action_dim=27, hidden_layers=[256, 256], activation="ReLU"):
         super(ActorCritic, self).__init__()
 
         # Actor network definition
