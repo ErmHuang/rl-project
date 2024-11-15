@@ -10,7 +10,7 @@ from collections import defaultdict
 
 
 class LearningAgent:
-    def __init__(self, env, train_cfg, device="cpu"):
+    def __init__(self, env, train_cfg, device="cuda" if torch.cuda.is_available() else "cpu"):
         # Initialize environment, policy networks and algorithms
 
         self.env = env
@@ -114,8 +114,8 @@ class LearningAgent:
 
 train_cfg = {
     "runner": {
-        "num_steps_per_env": 2048,
-        "save_interval": 10,
+        "num_steps_per_env": 500,
+        "save_interval": 1000,
         "log_dir": "./logs"
     },
     "algorithm": {
@@ -123,16 +123,17 @@ train_cfg = {
         "lam": 0.95
     },
     "policy": {
-        "hidden_layers": [256, 256],  # number of neurons per hidden layer
+        "hidden_layers": [256, 128],  # number of neurons per hidden layer
         "activation": "ReLU",  # type of activation function
     }
 }
 
 # Initialize environment and LearningAgent, then start training
 env = RoboticArmEnv()
-# agent = LearningAgent(env, train_cfg, device="cuda" if torch.cuda.is_available() else "cpu")
-agent = LearningAgent(env, train_cfg, device="cpu")
-agent.train(num_episodes=10)
+agent = LearningAgent(env, train_cfg, device="cuda" if torch.cuda.is_available() else "cpu")
+# agent = LearningAgent(env, train_cfg, device="cpu")
+print("Current device:", torch.cuda.current_device() if torch.cuda.is_available() else "CPU")
+agent.train(num_episodes=1000)
 agent.logger.print_rewards()
 agent.logger.plot_states()
 

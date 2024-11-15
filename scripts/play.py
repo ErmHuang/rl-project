@@ -3,14 +3,14 @@ from robotic_arm_gym_v1 import RoboticArmEnv
 from network import ActorCritic
 
 # 配置
-model_path = "./logs/model_checkpoint_10.pth"  # 模型检查点文件路径
+model_path = "./logs/model_checkpoint_1000.pth"  # 模型检查点文件路径
 
 # 初始化环境和模型
 env = RoboticArmEnv()
 actor_critic = ActorCritic(
     state_dim=env.num_obs,
     action_dim=env.num_actions,
-    hidden_layers=[256, 256],  # 确保与训练时的配置一致
+    hidden_layers=[256, 128],  # 确保与训练时的配置一致
     activation="ReLU"
 )
 
