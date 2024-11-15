@@ -8,7 +8,7 @@ import os
 
 """
     ### Action Space
-    The action space is a `Discrete(54)`. An action represents the increase or decrease torques applied at the hinge joints.
+    The action space is a `Discrete(27)`. An action represents the increase or decrease torques applied at the hinge joints.
 
     | Num | Action                                                                          | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit |
     |-----|---------------------------------------------------------------------------------|-------------|-------------|--------------------------|-------|------|
@@ -57,11 +57,11 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         utils.EzPickle.__init__(self, **kwargs)
 
         # Define the observation space
-        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(19,), dtype=np.float64)
+        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(18,), dtype=np.float64)
         self.num_obs = self.observation_space.shape[0]
 
         # Discrete action space: 54 possible actions (3^3 for torques, plus 1 for the button)
-        self.action_space = Discrete(54)
+        self.action_space = Discrete(27)
         self.num_actions = self.action_space.n
 
         # Initial torques (in the range [-1, 1]) for the three joints

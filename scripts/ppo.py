@@ -22,7 +22,7 @@ class PPO:
                  use_clipped_value_loss=True,
                  schedule="fixed",
                  desired_kl=0.01,
-                 device='cpu',
+                 device="cuda" if torch.cuda.is_available() else "cpu",
                  ):
 
         self.device = device

@@ -38,7 +38,7 @@ class RolloutStorage:
         self.returns = torch.zeros(num_transitions_per_env, num_envs, 1, device=self.device)
         self.advantages = torch.zeros(num_transitions_per_env, num_envs, 1, device=self.device)
         # self.action_probs = torch.zeros(num_transitions_per_env, num_envs, *actions_shape, device=self.device)
-        self.action_probs = torch.zeros(num_transitions_per_env, num_envs, 54, device=self.device)
+        self.action_probs = torch.zeros(num_transitions_per_env, num_envs, 27, device=self.device)
 
         self.num_transitions_per_env = num_transitions_per_env
         self.num_envs = num_envs
@@ -104,6 +104,6 @@ class RolloutStorage:
                 dones_batch = self.dones.view(-1)[indices[start:start + mini_batch_size]]
                 values_batch = self.values.view(-1)[indices[start:start + mini_batch_size]]
                 actions_log_prob_batch = self.actions_log_prob.view(-1)[indices[start:start + mini_batch_size]]
-                action_probs_batch = self.action_probs.view(-1, 54)[indices[start:start + mini_batch_size]]  # Ensure matching shape
+                action_probs_batch = self.action_probs.view(-1, 27)[indices[start:start + mini_batch_size]]  # Ensure matching shape
 
                 yield obs_batch, actions_batch, rewards_batch, dones_batch, values_batch, actions_log_prob_batch, action_probs_batch

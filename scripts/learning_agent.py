@@ -114,8 +114,8 @@ class LearningAgent:
 
 train_cfg = {
     "runner": {
-        "num_steps_per_env": 500,
-        "save_interval": 1000,
+        "num_steps_per_env": 2000,
+        "save_interval": 5000,
         "log_dir": "./logs"
     },
     "algorithm": {
