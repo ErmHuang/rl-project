@@ -89,6 +89,7 @@ class LearningAgent:
 
             # Log rewards for this episode
             self.logger.log_rewards(episode_rewards, num_episodes=1)
+            self.logger.print_rewards()
 
             # Add total reward to state_log for plotting
             if "episode_rewards" not in self.logger.state_log:
@@ -104,6 +105,7 @@ class LearningAgent:
             self.ppo.update()
 
             print(f"Episode {episode + 1}/{num_episodes} completed.")
+
             if self.log_dir and not os.path.exists(self.log_dir):
                 os.makedirs(self.log_dir)
             if (episode + 1) % self.save_interval == 0:
@@ -115,7 +117,7 @@ class LearningAgent:
 train_cfg = {
     "runner": {
         "num_steps_per_env": 2000,
-        "save_interval": 5000,
+        "save_interval": 50,
         "log_dir": "./logs"
     },
     "algorithm": {
@@ -132,8 +134,8 @@ train_cfg = {
 env = RoboticArmEnv()
 agent = LearningAgent(env, train_cfg, device="cuda" if torch.cuda.is_available() else "cpu")
 # agent = LearningAgent(env, train_cfg, device="cpu")
-print("Current device:", torch.cuda.current_device() if torch.cuda.is_available() else "CPU")
-agent.train(num_episodes=1000)
+print("Current device:", torch.cuda.current_device() if torch.cuda.is_available() else "cpu")
+agent.train(num_episodes=50)
 agent.logger.print_rewards()
 agent.logger.plot_states()
 
