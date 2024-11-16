@@ -41,8 +41,11 @@ import os
 
 """
 
-xml_path = os.getcwd() + "/model/robotic_arm.xml"
+# xml_path = os.getcwd() + "./model/robotic_arm.xml"
+project_root = os.path.dirname(os.path.dirname(__file__))
 
+# 使用相对路径指向 model/robotic_arm.xml
+xml_path = os.path.join(project_root, "model", "robotic_arm.xml")
 
 class RoboticArmEnv(MujocoEnv, utils.EzPickle):
     """
@@ -55,14 +58,17 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
 
         # Define the observation space
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(19,), dtype=np.float64)
+        self.num_obs = self.observation_space.shape[0]
 
         # Discrete action space: 54 possible actions (3^3 for torques, plus 1 for the button)
         self.action_space = Discrete(54)
+        self.num_actions = self.action_space.n
 
         # Initial torques (in the range [-1, 1]) for the three joints
         self.torques = np.zeros(3)
         self.button_state = 0
         self.end_effector_pushed = 0
+        self.num_envs = 1
         # Initialize the Mujoco environment, passing the .xml model file path
         MujocoEnv.__init__(self, xml_path, 2, **kwargs)
 
