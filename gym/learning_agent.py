@@ -119,6 +119,10 @@ class LearningAgent:
             torch.cuda.empty_cache()  # 清理显存
             transition.clear()
 
+            # 清理logger
+            if episode % 50 == 0:
+                self.logger.state_log.clear()
+
             print(f"Episode {episode + 1}/{num_episodes} completed.")
             if self.log_dir and not os.path.exists(self.log_dir):
                 os.makedirs(self.log_dir)
@@ -152,4 +156,4 @@ if __name__ == "__main__":
     pretrained_model_path = "./logs/model_checkpoint_1000.pth"
     agent = LearningAgent(env, train_cfg, device="cuda" if torch.cuda.is_available() else "cpu",
                           pretrained_model_path=pretrained_model_path)
-    agent.train(num_episodes=100)
+    agent.train(num_episodes=10000)
