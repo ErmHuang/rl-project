@@ -150,21 +150,34 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         end_effector_pos = self.get_body_com("end_effector")
         target_pos = self.get_body_com("target")
         relative_distance = np.linalg.norm(end_effector_pos - target_pos)
+        angular_velocity = self.data.qvel.flat[:3]
 
         reward = 0
         
         # 1. Dense negative reward based on the relative distance
-        reward += - relative_distance ** 2
+        reward += - relative_distance ** 2 
         
-        # # 2. Positive reward of 1 when the end-effector is close enough to the target
+        # 2. Positive reward of 1 when the end-effector is close enough to the target
         # if relative_distance < 0.05:
         #     reward += 10
         
-        # # 3. Penalty for invalid button press
+        # 3. Penalty for invalid button press
         # if self.end_effector_pushed == 1 and relative_distance >= 0.05:
         #     reward -= 5  # Penalty for invalid push action
 
-        # 4. Large positive reward when the button is successfully pushed
+        # 4. Penalty for strong torques
+        if np.sum(np.square(self.torques)) > 50.0:
+            reward -= 0.25 + np.sum(np.square(self.torques)) * 0.01
+
+        # 5. Penalty for high angular velocities
+        if np.sum(np.square(angular_velocity)) > 1:
+            reward -= np.sum(np.maximum(angular_velocity,-angular_velocity)) * 0.1 
+
+        # 6. Penalty for not moving
+        if np.sum(np.maximum(angular_velocity,-angular_velocity)) <= 0.1:
+            reward -= 1.0
+
+        # 7. Large positive reward when the button is successfully pushed
         if relative_distance <= 0.05:
             reward += 100
             done = True
