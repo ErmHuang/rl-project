@@ -3,7 +3,7 @@ from robotic_arm_gym_v1 import RoboticArmEnv
 from network import ActorCritic
 
 # 配置
-model_path = "./logs/model_checkpoint_1000.pth"  # 模型检查点文件路径
+model_path = "./logs/model_checkpoint_2000.pth"  # 模型检查点文件路径
 
 # 初始化环境和模型
 env = RoboticArmEnv()
@@ -15,7 +15,7 @@ actor_critic = ActorCritic(
 )
 
 # 加载保存的模型权重
-actor_critic.load_state_dict(torch.load(model_path, map_location="cpu"))
+actor_critic.load_state_dict(torch.load(model_path, map_location="cuda" if torch.cuda.is_available() else "cpu"))
 actor_critic.eval()  # 设置模型为评估模式
 
 # 运行环境并使用加载的模型
