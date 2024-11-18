@@ -1,5 +1,5 @@
 <mujoco model="manipulator">
-    <compiler angle="radian" meshdir="/home/erm/rl-project/meshes/" />
+    <compiler angle="radian" meshdir="./meshes/" />
     <size njmax="500" nconmax="100" />
     <asset>
         <mesh name="base_link" file="base_link.STL" />

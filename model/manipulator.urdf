@@ -3,7 +3,7 @@
   name="manipulator">
     <mujoco>
         <compiler 
-        meshdir="/home/erm/rl-project/meshes/" 
+        meshdir="./meshes/" 
         balanceinertia="true" 
         discardvisual="false" />
   </mujoco>
@@ -40,7 +40,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/erm/rl-project/meshes/base_link.STL" />
+          filename="./meshes/base_link.STL" />
       </geometry>
       <material
         name="">
@@ -54,7 +54,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/erm/rl-project/meshes/base_link.STL" />
+          filename="./meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -80,7 +80,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/erm/rl-project/meshes/link_1.STL" />
+          filename="./meshes/link_1.STL" />
       </geometry>
       <material
         name="">
@@ -94,7 +94,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/erm/rl-project/meshes/link_1.STL" />
+          filename="./meshes/link_1.STL" />
       </geometry>
     </collision>
   </link>
@@ -136,7 +136,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/erm/rl-project/meshes/link_2.STL" />
+          filename="./meshes/link_2.STL" />
       </geometry>
       <material
         name="">
@@ -150,7 +150,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/erm/rl-project/meshes/link_2.STL" />
+          filename="./meshes/link_2.STL" />
       </geometry>
     </collision>
   </link>
@@ -194,7 +194,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/erm/rl-project/meshes/link_3.STL" />
+          filename="./meshes/link_3.STL" />
       </geometry>
       <material
         name="">
@@ -208,7 +208,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/erm/rl-project/meshes/link_3.STL" />
+          filename="./meshes/link_3.STL" />
       </geometry>
     </collision>
   </link>
