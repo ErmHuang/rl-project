@@ -153,7 +153,7 @@ train_cfg = {
 if __name__ == "__main__":
     # 初始化环境和LearningAgent并开始训练
     env = RoboticArmEnv()
-    pretrained_model_path = "./logs/model_checkpoint_10500.pth"
+    pretrained_model_path = "./logs/model_checkpoint_8000.pth"
     agent = LearningAgent(env, train_cfg, device="cuda" if torch.cuda.is_available() else "cpu",
                           pretrained_model_path=pretrained_model_path)
     # agent = LearningAgent(env, train_cfg, device="cuda" if torch.cuda.is_available() else "cpu")

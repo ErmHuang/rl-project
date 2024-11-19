@@ -112,8 +112,13 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         #     self.torques = np.clip(self.torques + torque_delta, -10.0, 10.0)
         #     self._attempt_push_button()  # Simulate the button push action
 
+        end_effector_pos = self.get_body_com("end_effector")
+        target_pos = self.get_body_com("target")
+        relative_distance = np.linalg.norm(end_effector_pos - target_pos)
+
         torque_delta = np.array(action_map[action])
         self.torques = np.clip(self.torques + torque_delta, -10.0, 10.0)
+
 
         # Perform simulation with the updated torques
         self.do_simulation(self.torques, self.frame_skip)
@@ -122,10 +127,10 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         ob = self._get_obs()
         
         # Calculate the reward based on the current state
-        reward, done = self._calculate_reward()
+        reward, done = self._calculate_reward(relative_distance)
 
         # Return observations, reward, done flag, and additional info
-        return ob, reward, done, {}
+        return ob, reward, done, relative_distance
 
     # def _attempt_push_button(self):
     #     """
@@ -143,7 +148,7 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
     #     else:
     #         self.button_state = 0  # Invalid push, button remains "off"
 
-    def _calculate_reward(self):
+    def _calculate_reward(self, old_relative_distance):
         """
         Computes the reward based on the current state of the environment.
         """
@@ -177,9 +182,15 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         if np.sum(np.maximum(angular_velocity,-angular_velocity)) <= 0.1:
             reward -= 1.0
 
+        #7. Penalty or award for getting closer
+        if relative_distance < old_relative_distance:
+            reward += 2.0
+        else:
+            reward -= 1.0
+
         # 7. Large positive reward when the button is successfully pushed
         if relative_distance <= 0.05:
-            reward += 10000
+            reward += 1000
             done = True
         else:
             done = False
