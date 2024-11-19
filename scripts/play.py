@@ -3,7 +3,7 @@ from robotic_arm_gym_v1 import RoboticArmEnv
 from network import ActorCritic
 
 # 配置
-model_path = "./logs/model_checkpoint_3500.pth"  # 模型检查点文件路径
+model_path = "./logs/model_checkpoint_10500.pth"  # 模型检查点文件路径
 
 # 初始化环境和模型
 env = RoboticArmEnv()

@@ -179,7 +179,7 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
 
         # 7. Large positive reward when the button is successfully pushed
         if relative_distance <= 0.05:
-            reward += 100
+            reward += 10000
             done = True
         else:
             done = False
@@ -197,9 +197,9 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         
         # Randomly set the target position
         # self.goal = self.np_random.uniform(low=-0.2, high=0.2, size=3)
-        goal_x = self.np_random.uniform(-0.75, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.75)
-        goal_y = self.np_random.uniform(-0.75, -0.1) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.1, 0.75)
-        goal_z = self.np_random.uniform(low=0, high=0.75)
+        goal_x = self.np_random.uniform(-0.6, -0.2) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.2, 0.6)
+        goal_y = self.np_random.uniform(-0.6, -0.2) if self.np_random.uniform() < 0.5 else self.np_random.uniform(0.2, 0.6)
+        goal_z = self.np_random.uniform(low=0.1, high=0.6)
         self.goal = np.array([goal_x, goal_y, goal_z])
         self.sim.model.body_pos[self.model.body_name2id('target')] = self.goal
         

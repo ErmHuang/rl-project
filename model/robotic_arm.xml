@@ -40,9 +40,9 @@
         </body>
     </worldbody>
     <actuator>
-    	<motor joint="link_1_joint" ctrllimited="true" ctrlrange="-10.0 10.0" gear="350.0" />
-    	<motor joint="link_2_joint" ctrllimited="true" ctrlrange="-10.0 10.0" gear="50.0" />
-    	<motor joint="link_3_joint" ctrllimited="true" ctrlrange="-10.0 10.0" gear="5.0" />
+    	<motor joint="link_1_joint" ctrllimited="true" ctrlrange="-10.0 10.0" gear="200.0" />
+    	<motor joint="link_2_joint" ctrllimited="true" ctrlrange="-10.0 10.0" gear="10.0" />
+    	<motor joint="link_3_joint" ctrllimited="true" ctrlrange="-10.0 10.0" gear="2.0" />
     </actuator>
 
 </mujoco>
