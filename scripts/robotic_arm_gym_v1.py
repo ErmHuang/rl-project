@@ -65,7 +65,7 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         self.num_actions = self.action_space.n
 
         # Initial torques (in the range [-1, 1]) for the three joints
-        self.torques = np.zeros(3)
+        self.torques = np.array([0,-3.5,-3.5])
         # self.button_state = 0
         # self.end_effector_pushed = 0
         self.num_envs = 1
@@ -184,11 +184,15 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
 
         #7. Penalty or award for getting closer
         if relative_distance < old_relative_distance:
-            reward += 2.0
+            reward += 1.5
         else:
-            reward -= 1.0
+            reward -= 0.5
 
-        # 7. Large positive reward when the button is successfully pushed
+        # 8. Award for near the target
+        if relative_distance <= 0.25 and relative_distance < 0.05:
+            reward += (0.25 - relative_distance) * 15
+
+        # 9. Large positive reward when the button is successfully pushed
         if relative_distance <= 0.05:
             reward += 1000
             done = True
