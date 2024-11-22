@@ -42,19 +42,22 @@ if youn want to use your pre-trained model for continuouse training, change pret
 
 ## Structure
 -model: 3-DOF Robot arm configurations for simulation:
-        – meshes: STL files of every links for the robot arm
-        – manipulator.urdf: URDF file of the robot arm
-        – robot arm.xml: Parameters set-up of the robot arm
-- scripts: Codes
-        – robotic arm gym v1.py: gym environment set-up
-        – gym test.py: test demo of gym environment for random action execution
-        – network.py: Actor-Critic network frameworks
-        – ppo.py: PPO algorithm implementation
-        – rollout storage v1.py: storage and transition data management
-        – learning agent.py: model training script
-        – play.py: model testing script
-        – logger.py: code for visualization
-- logs: Trained models
+        -- meshes: STL files of every links for the robot arm
+        -- manipulator.urdf: URDF file of the robot arm
+        -- robot arm.xml: Parameters set-up of the robot arm
+
+- scripts: Codes:
+        -- robotic arm gym v1.py: gym environment set-up
+        -- gym test.py: test demo of gym environment for random action execution
+        -- network.py: Actor-Critic network frameworks
+        -- ppo.py: PPO algorithm implementation
+        -- rollout storage v1.py: storage and transition data management
+        -- learning agent.py: model training script
+        -- play.py: model testing script
+        -- logger.py: code for visualization
+
+- logs: Trained models:
+
 - environment.yml: requirement for building virtual environment
 
 ## License
