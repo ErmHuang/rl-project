@@ -41,9 +41,6 @@ if youn want to use your pre-trained model for continuouse training, change pret
        
 
 ## Structure
-- scripts/: python files.
-- meshes/: 3D models stl files for simulations.
-- model/: Models used in the reinforcement learning algorithms.
 -model: 3-DOF Robot arm configurations for simulation:
         – meshes: STL files of every links for the robot arm
         – manipulator.urdf: URDF file of the robot arm
