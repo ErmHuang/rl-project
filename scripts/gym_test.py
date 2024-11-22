@@ -29,8 +29,11 @@ env = gym.make('RoboticArm-v1')
 observation = env.reset()
 
 count = 0
+
+total_reward = 0
+
 # Test the environment's execution
-for _ in range(10000):  # Simulate 1000 time steps
+for _ in range(20000):  # Simulate 1000 time steps
     env.render()  # Render the simulation environment
 
     action = env.action_space.sample()  # Randomly generate an action
@@ -40,9 +43,11 @@ for _ in range(10000):  # Simulate 1000 time steps
     # print("Observation: ", observation)
     print("Get Reward: ", reward)
 
+    total_reward += reward
+
     count += 1
 
-    if count % 1000 == 0:
+    if count % 2000 == 0:
         env.reset()
 
 
@@ -50,6 +55,7 @@ for _ in range(10000):  # Simulate 1000 time steps
         observation = env.reset()  # Reset environment
 env.close()  # Close environment
 
+print("Average Reward: ", total_reward/10.0)
 
 
 

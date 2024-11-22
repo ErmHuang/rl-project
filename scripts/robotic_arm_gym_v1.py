@@ -66,6 +66,7 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
 
         # Initial torques (in the range [-1, 1]) for the three joints
         self.torques = np.array([0,-3.5,-3.5])
+        # self.torques = np.zeros(3)
         # self.button_state = 0
         # self.end_effector_pushed = 0
         self.num_envs = 1
@@ -112,13 +113,12 @@ class RoboticArmEnv(MujocoEnv, utils.EzPickle):
         #     self.torques = np.clip(self.torques + torque_delta, -10.0, 10.0)
         #     self._attempt_push_button()  # Simulate the button push action
 
-        end_effector_pos = self.get_body_com("end_effector")
-        target_pos = self.get_body_com("target")
-        relative_distance = np.linalg.norm(end_effector_pos - target_pos)
-
         torque_delta = np.array(action_map[action])
         self.torques = np.clip(self.torques + torque_delta, -10.0, 10.0)
 
+        end_effector_pos = self.get_body_com("end_effector")
+        target_pos = self.get_body_com("target")
+        relative_distance = np.linalg.norm(end_effector_pos - target_pos)
 
         # Perform simulation with the updated torques
         self.do_simulation(self.torques, self.frame_skip)
