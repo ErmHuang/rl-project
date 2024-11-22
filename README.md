@@ -42,7 +42,7 @@ if youn want to use your pre-trained model for continuouse training, change pret
 
 ## Structure
 
--model: 3-DOF Robot arm configurations for simulation:
+- model: 3-DOF Robot arm configurations for simulation:
 
         -- meshes: STL files of every links for the robot arm
         -- manipulator.urdf: URDF file of the robot arm
