@@ -47,7 +47,7 @@ class Logger:
         # Time variable for plotting
         log = self.state_log
         if log["episode_rewards"]:
-            time = np.arange(len(log["episode_rewards"]))  # 每个 episode 的索引
+            time = np.arange(len(log["episode_rewards"]))  # index for every episode
 
             # Plot episode rewards
             a = axs[0, 0]

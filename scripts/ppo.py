@@ -111,23 +111,23 @@ class PPO:
         generator = self.storage.mini_batch_generator(self.num_mini_batches, self.num_learning_epochs)
         for obs_batch, actions_batch, rewards_batch, dones_batch, values_batch, actions_log_prob_batch, action_probs_batch in generator:
             actions_batch = actions_batch.to(torch.int64)
-            # 动作 log_prob 计算
+            # log_prob calculation
             actions_log_prob_batch = self.actor_critic.get_actions_log_prob(actions_batch, action_probs_batch)
             value_batch = self.actor_critic.evaluate(obs_batch)
 
             rewards_batch = rewards_batch.unsqueeze(1)
-            # KL 散度和熵项可以忽略
+            # KL 
             ratio = torch.exp(actions_log_prob_batch - actions_log_prob_batch.detach())
-            surrogate_loss1 = ratio * rewards_batch  # 使用 advantage 代替 reward 更好
+            surrogate_loss1 = ratio * rewards_batch  # use advantage to replace reward is better
             surrogate_loss2 = torch.clamp(ratio, 1.0 - self.clip_param, 1.0 + self.clip_param) * rewards_batch
             surrogate_loss = -torch.min(surrogate_loss1, surrogate_loss2).mean()
 
-            # 值函数损失
+            # value loss
             value_loss = (rewards_batch - value_batch).pow(2).mean()
 
             loss = surrogate_loss + self.value_loss_coef * value_loss
 
-            # 反向传播和梯度更新
+            # Backpropagation and gradient updates
             self.optimizer.zero_grad()
             loss.backward()
             nn.utils.clip_grad_norm_(self.actor_critic.parameters(), self.max_grad_norm)

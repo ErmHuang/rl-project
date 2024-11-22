@@ -29,7 +29,7 @@ class LearningAgent:
             activation=self.policy_cfg["activation"]
         ).to(self.device)
 
-        # 如果指定了预训练模型路径，加载预训练权重
+        # load pretrained model
         if pretrained_model_path:
             self.actor_critic.load_state_dict(torch.load(pretrained_model_path, map_location=self.device))
             print(f"Loaded pretrained model from {pretrained_model_path}")
@@ -60,13 +60,13 @@ class LearningAgent:
     def train(self, num_episodes):
         for episode in range(num_episodes):
             state = torch.tensor(self.env.reset(), dtype=torch.float32).unsqueeze(0).to(self.device)
-            self.rollout_storage.clear()  # 每个回合清空存储
+            self.rollout_storage.clear()  # delete memory usage every episode
 
             episode_rewards = defaultdict(float)
 
-            # 数据采集
+            # data collection
             for step in range(self.num_steps_per_env):
-                action = self.ppo.act(state, state)  # 根据状态选择动作
+                action = self.ppo.act(state, state)  # choose action
                 next_state, reward, done, _ = self.env.step(action.item())
                 # self.env.render()
 
@@ -75,7 +75,7 @@ class LearningAgent:
                 self.logger.log_state("action", action.cpu().numpy())
                 episode_rewards["step_reward"] += reward  # Track total reward for episode
 
-                # 存储当前步数据到RolloutStorage
+                # storage current transition to RolloutStorage
                 transition = self.rollout_storage.Transition()
                 transition.observations = state
                 # print(transition.observations.shape)
@@ -90,7 +90,7 @@ class LearningAgent:
                 self.rollout_storage.add_transitions(transition)
                 transition.clear()
 
-                # 更新状态
+                # update state
                 state = torch.tensor(next_state, dtype=torch.float32).unsqueeze(0).to(self.device)
                 if done:
                     break
@@ -103,11 +103,11 @@ class LearningAgent:
                 self.logger.state_log["episode_rewards"] = []
             self.logger.state_log["episode_rewards"].append(episode_rewards["step_reward"])
 
-            # 计算优势和回报
+            # calculate reward 
             last_value = self.ppo.actor_critic.evaluate(state)
             self.rollout_storage.compute_returns(last_values=last_value, gamma=self.alg_cfg["gamma"], lam=self.alg_cfg["lam"])
 
-            # 更新策略
+            # update policy
             self.ppo.update()
 
             self.rollout_storage.clear()
@@ -116,10 +116,10 @@ class LearningAgent:
             gc.collect()
 
             del state, action, last_value, reward, done, next_state, episode_rewards
-            torch.cuda.empty_cache()  # 清理显存
+            torch.cuda.empty_cache()  # clear memory
             transition.clear()
 
-            # 清理logger
+            # clear logger
             if episode % 50 == 0:
                 self.logger.state_log.clear()
 
@@ -151,7 +151,7 @@ train_cfg = {
 
 
 if __name__ == "__main__":
-    # 初始化环境和LearningAgent并开始训练
+    # init env and LearningAgent, start to train
     env = RoboticArmEnv()
     pretrained_model_path = "./logs/model_checkpoint_5000.pth"
     agent = LearningAgent(env, train_cfg, device="cuda" if torch.cuda.is_available() else "cpu",

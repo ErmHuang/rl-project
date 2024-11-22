@@ -76,9 +76,9 @@ class ActorCritic(nn.Module):
     def get_actions_log_prob(self, actions, action_probs):
         actions = actions.to(torch.int64)
         if actions.dim() == 1:
-            actions = actions.unsqueeze(1)  # 确保 actions 维度为 [batch_size, 1]
+            actions = actions.unsqueeze(1)  # make sure actions dimension [batch_size, 1]
 
-        log_prob = action_probs.gather(1, actions).log()  # 使用 gather 索引
+        log_prob = action_probs.gather(1, actions).log()  # use gather index
         return log_prob
 
         # return (self.action_probs.gather(1, actions.unsqueeze(1)).log()).squeeze()  # Calculate the log probability

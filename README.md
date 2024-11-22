@@ -21,36 +21,48 @@
         cd rl-project
 
    
-4. Modify the meshdir path in `model/robotic_arm.xml` to point to your own directory so that the render works, such as
-
-        <meshdir="$HOME/YOUR_PROJECT_FOLDER/rl-project/meshes/"/>
-   
 5. Activate conda env and run the test
     
         cd YOUR_PROJECT_FOLDER/rl-project
 
         conda activate me5418_group42
 
+        python scripts/gym_test.py
+
+6. Train your model
+
         python scripts/learning_agent.py
 
+if youn want to use your pre-trained model for continuouse training, change pretrained_model_path
+
+7. Test your model
+
+        python scripts/play.py
        
 
 ## Structure
 - scripts/: python files.
 - meshes/: 3D models stl files for simulations.
 - model/: Models used in the reinforcement learning algorithms.
+-model: 3-DOF Robot arm configurations for simulation:
+        – meshes: STL files of every links for the robot arm
+        – manipulator.urdf: URDF file of the robot arm
+        – robot arm.xml: Parameters set-up of the robot arm
+- scripts: Codes
+        – robotic arm gym v1.py: gym environment set-up
+        – gym test.py: test demo of gym environment for random action execution
+        – network.py: Actor-Critic network frameworks
+        – ppo.py: PPO algorithm implementation
+        – rollout storage v1.py: storage and transition data management
+        – learning agent.py: model training script
+        – play.py: model testing script
+        – logger.py: code for visualization
+- logs: Trained models
+- environment.yml: requirement for building virtual environment
 
 ## License
 This project is licensed under the MIT License.
 
-## Troubleshooting
-### Error 1: 
-When running "python scripts/learning_agents.py", it reports:
-"File "/home/user/.local/lib/python3.6/site-packages/gym/envs/mujoco/mujoco_env.py", line 72, in __init__
-    assert not done
-AssertionError" 
 
-### Solution: 
-Try to run "python scripts/learning_agent.py" several times
 
 

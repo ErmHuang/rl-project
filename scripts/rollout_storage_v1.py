@@ -111,7 +111,7 @@ class RolloutStorage:
         batch_size = self.num_envs * self.num_transitions_per_env
         mini_batch_size = batch_size // num_mini_batches
 
-        # 打乱索引，生成小批次
+        # randomize index
         for epoch in range(num_learning_epochs):
             indices = torch.randperm(batch_size)
             for start in range(0, batch_size, mini_batch_size):
@@ -121,7 +121,7 @@ class RolloutStorage:
                 dones_batch = self.dones.view(-1)[indices[start:start + mini_batch_size]]
                 values_batch = self.values.view(-1)[indices[start:start + mini_batch_size]]
                 actions_log_prob_batch = self.actions_log_prob.view(-1)[indices[start:start + mini_batch_size]]
-                action_probs_batch = self.action_probs.view(-1,27)[indices[start:start + mini_batch_size]]  # 确保形状匹配
+                action_probs_batch = self.action_probs.view(-1,27)[indices[start:start + mini_batch_size]]  # make sure shape is matched
 
                 yield obs_batch, actions_batch, rewards_batch, dones_batch, values_batch, actions_log_prob_batch, action_probs_batch
 
