@@ -9,18 +9,16 @@
    
         ./simulate
 
-2. Create conda environment via environment.yml
-
-        conda env create -f environment.yml
-   
-   
-3. Clone the repository
+2. Clone the repository
   
         git clone git@github.com:ErmHuang/rl-project.git
    
         cd rl-project
 
-   
+3. Create conda environment via environment.yml
+
+        conda env create -f environment.yml
+      
 5. Activate conda env and run the test
     
         cd YOUR_PROJECT_FOLDER/rl-project
