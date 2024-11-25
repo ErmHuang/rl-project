@@ -21,8 +21,6 @@
       
 5. Activate conda env and run the test
     
-        cd YOUR_PROJECT_FOLDER/rl-project
-
         conda activate me5418_group42
 
         python scripts/gym_test.py
