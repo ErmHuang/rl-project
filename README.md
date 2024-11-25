@@ -39,11 +39,13 @@ if youn want to use your pre-trained model for continuouse training, change pret
 ## Structure
 
 - model: 3-DOF Robot arm configurations for simulation:
+  
         -- meshes: STL files of every links for the robot arm
         -- manipulator.urdf: URDF file of the robot arm
         -- robot arm.xml: Parameters set-up of the robot arm
 
 - scripts: Codes:
+  
         -- robotic arm gym v1.py: gym environment set-up
         -- gym test.py: test demo of gym environment for random action execution
         -- network.py: Actor-Critic network frameworks
